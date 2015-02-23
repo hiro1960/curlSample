@@ -1,15 +1,41 @@
-//
-//  main.cpp
-//  curlSample
-//
-//  Created by hiro on 2015/02/23.
-//  Copyright (c) 2015年 hiro.maeda. All rights reserved.
-//
-
+#include <string>
 #include <iostream>
+#include <curl/curl.h>
 
-int main(int argc, const char * argv[]) {
-    // insert code here...
-    std::cout << "Hello, World!\n";
+using namespace std;
+
+size_t callbackWrite(char *ptr, size_t size, size_t nmemb, string *stream)
+{
+    int dataLength = (int)(size * nmemb);
+    stream->append(ptr, dataLength);
+    return dataLength;
+}
+
+int main()
+{
+    CURL *curl;
+    CURLcode ret;
+    
+    curl = curl_easy_init();
+    string chunk;
+    
+    if (curl == NULL) {
+        cerr << "curl_easy_init() failed" << endl;
+        return 1;
+    }
+    
+    curl_easy_setopt(curl, CURLOPT_URL, "http://localhost:5984/environment/");
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callbackWrite);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
+    ret = curl_easy_perform(curl);
+    curl_easy_cleanup(curl);
+    
+    if (ret != CURLE_OK) {
+        cerr << "curl_easy_perform() failed." << endl;
+        return 1;
+    }
+    
+    cout << chunk << endl;
+    
     return 0;
 }

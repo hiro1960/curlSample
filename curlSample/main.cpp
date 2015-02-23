@@ -16,6 +16,8 @@ int main()
     CURL *curl;
     CURLcode ret;
     
+    // コメント追加
+    
     curl = curl_easy_init();
     string chunk;
     
